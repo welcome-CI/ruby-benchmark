@@ -216,9 +216,9 @@ DEPENDENCIES
   cssbundling-rails
   debug
   jsbundling-rails
-  pg (~> 1.1)
-  puma (~> 5.0)
-  rails (~> 7.0.3)
+  pg
+  puma
+  rails (= 7.0.3)
   rubocop
   rubocop-performance
   rubocop-rails
