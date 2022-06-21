@@ -15,6 +15,8 @@ gem 'stimulus-rails'
 gem 'turbo-rails'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
+gem 'haml-rails'
+
 group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
 end
@@ -22,6 +24,7 @@ end
 group :development do
   gem 'web-console'
 
+  gem 'haml_lint', require: false
   gem 'rubocop', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
