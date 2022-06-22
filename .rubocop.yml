@@ -20,6 +20,12 @@ AllCops:
     - config.ru
     - Rakefile
 
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/MultipleExpectations:
+  Max: 10
+
 Style/Documentation:
   Enabled: false
 
