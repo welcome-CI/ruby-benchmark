@@ -1,0 +1,21 @@
+%h1 Listing writers
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th
+      %th
+      %th
+
+  %tbody
+    - @writers.each do |writer|
+      %tr
+        %td= writer.name
+        %td= link_to 'Show', writer
+        %td= link_to 'Edit', edit_writer_path(writer)
+        %td= button_to 'Destroy', writer, method: :delete, form: { data: { turbo_confirm: 'Are you sure?' } }
+
+%br
+
+= link_to 'New Writer', new_writer_path

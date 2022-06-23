@@ -11,4 +11,8 @@
   %body
     - flash.each do |_name, message|
       %p= message
-    = yield
+    %header
+      = link_to 'Articles', articles_path
+      = link_to 'Writers', writers_path
+    %main
+      = yield

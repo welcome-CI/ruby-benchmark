@@ -1,0 +1,13 @@
+= form_for writer do |f|
+  - if writer.errors.any?
+    #error-explanation
+      %h2 #{pluralize(writer.errors.count, 'error')} prohibited this writer from being saved:
+      %ul
+        - writer.errors.full_messages.each do |message|
+          %li= message
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .actions
+    = f.submit 'Save'
