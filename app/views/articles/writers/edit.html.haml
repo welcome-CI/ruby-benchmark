@@ -1,0 +1,17 @@
+= form_with url: article_writers_path, method: 'patch', model: @article do |f|
+  - if @article.errors.any?
+    #error-explanation
+      %h2 #{pluralize(@article.errors.count, 'error')} prohibited this article from being saved:
+      %ul
+        - @article.errors.full_messages.each do |message|
+          %li= message
+
+  .field
+    = f.fields_for :articles_writers do |cf|
+      %div
+        = cf.label :writer_id, 'Writer ID'
+        = cf.text_field :writer_id
+        = cf.label :_destroy
+        = cf.check_box :_destroy
+  .actions
+    = f.submit 'Save'

@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
-  resources :writers
   root 'articles#index'
 
-  resources :articles
+  resources :articles do
+    resource :writers, only: %i[edit update], module: 'articles'
+  end
+
+  resources :writers
 end
