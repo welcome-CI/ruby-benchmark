@@ -2,6 +2,24 @@
   %b Title:
   = @article.title
 
+%div
+  %b Writers:
+  %table.table.table-striped.align-middle
+    %thead
+      %tr
+        %th ID
+        %th Name
+        %th
+        %th
+
+    %tbody
+      - @article.writers.each do |writer|
+        %tr
+          %td= writer.id
+          %td= writer.name
+          %td= link_to 'Show', writer
+          %td= link_to 'Edit', edit_writer_path(writer)
+
 = link_to 'Edit', edit_article_path(@article)
 |
 = link_to 'Back', articles_path

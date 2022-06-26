@@ -1,8 +1,10 @@
 %h1 Listing writers
+= link_to 'New Writer', new_writer_path
 
-%table
+%table.table.table-striped.align-middle
   %thead
     %tr
+      %th ID
       %th Name
       %th
       %th
@@ -11,11 +13,8 @@
   %tbody
     - @writers.each do |writer|
       %tr
+        %td= writer.id
         %td= writer.name
         %td= link_to 'Show', writer
         %td= link_to 'Edit', edit_writer_path(writer)
         %td= button_to 'Destroy', writer, method: :delete, form: { data: { turbo_confirm: 'Are you sure?' } }
-
-%br
-
-= link_to 'New Writer', new_writer_path
