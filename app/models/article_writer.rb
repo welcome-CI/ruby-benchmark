@@ -3,4 +3,6 @@ class ArticleWriter < ApplicationRecord
 
   belongs_to :article
   belongs_to :writer
+
+  validates :article_id, uniqueness: { scope: :writer_id }
 end
