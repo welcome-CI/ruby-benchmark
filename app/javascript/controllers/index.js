@@ -4,5 +4,8 @@
 
 import { application } from './application';
 
-import HelloController from './hello_controller';
+import FieldsForController from './fields_for_controller.js';
+application.register('fields-for', FieldsForController);
+
+import HelloController from './hello_controller.js';
 application.register('hello', HelloController);
