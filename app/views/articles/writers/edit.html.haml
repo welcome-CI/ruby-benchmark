@@ -11,7 +11,8 @@
       %div
         = cf.label :writer_id, 'Writer ID'
         = cf.text_field :writer_id
-        = cf.label :_destroy
-        = cf.check_box :_destroy
+        - if cf.object.persisted?
+          = cf.label :_destroy
+          = cf.check_box :_destroy
   .actions
     = f.submit 'Save'
