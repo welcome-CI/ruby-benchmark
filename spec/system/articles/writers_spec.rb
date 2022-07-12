@@ -36,6 +36,44 @@ RSpec.describe 'Articles::Writers', type: :system do
       expect(page).to have_content 'carol'
     end
 
+    it 'dissociates a writer from the article' do
+      article_with_writers = create(:article)
+      article_with_writers.writers.create!(name: 'dave')
+      article_with_writers.writers.create!(name: 'ellen')
+
+      visit edit_article_writers_path(article_with_writers)
+      writer_destroy_inputs = all(id: /article_articles_writers_attributes_\d+__destroy/)
+      writer_destroy_inputs[0].check
+      expect do
+        click_button 'Save'
+        expect(page).to have_content 'Article was successfully updated.'
+      end.to change(ArticleWriter, :count).by(-1)
+      expect(page).to have_current_path article_path(article_with_writers)
+      expect(page).not_to have_content 'dave'
+      expect(page).to have_content 'ellen'
+    end
+
+    it 'associates a writer with the article and dissociates a writer from the article' do
+      article_with_writers = create(:article)
+      article_with_writers.writers.create!(name: 'frank')
+      article_with_writers.writers.create!(name: 'alice')
+      bob = create(:writer, name: 'bob')
+
+      visit edit_article_writers_path(article_with_writers)
+      writer_destroy_inputs = all(id: /article_articles_writers_attributes_\d+__destroy/)
+      writer_destroy_inputs[0].check
+      writer_id_inputs = all(id: /article_articles_writers_attributes_\d+_writer_id/)
+      writer_id_inputs[2].fill_in with: bob.id
+      expect do
+        click_button 'Save'
+        expect(page).to have_content 'Article was successfully updated.'
+      end.not_to change(ArticleWriter, :count)
+      expect(page).to have_current_path article_path(article_with_writers)
+      expect(page).not_to have_content 'frank'
+      expect(page).to have_content 'alice'
+      expect(page).to have_content 'bob'
+    end
+
     context 'with non-existent writer id' do
       it 'dose not associate a writer with the article' do
         visit edit_article_writers_path(article)
