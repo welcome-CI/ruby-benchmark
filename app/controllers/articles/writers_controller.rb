@@ -10,6 +10,7 @@ module Articles
       if @article.update(article_params)
         redirect_to @article, notice: 'Article was successfully updated.'
       else
+        @article.articles_writers.build
         render :edit, status: :unprocessable_entity
       end
     end
