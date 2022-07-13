@@ -11,7 +11,7 @@
       = f.fields_for :articles_writers do |cf|
         %div
           = cf.label :writer_id, 'Writer ID'
-          = cf.text_field :writer_id
+          = cf.text_field :writer_id, readonly: cf.object.persisted?
           - if cf.object.persisted?
             = cf.label :_destroy
             = cf.check_box :_destroy
