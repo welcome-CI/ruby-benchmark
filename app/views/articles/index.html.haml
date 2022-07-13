@@ -1,21 +1,38 @@
 %h1 Listing articles
+= link_to 'New Article', new_article_path
 
-%table
+%table.table.table-striped.align-middle
   %thead
     %tr
+      %th ID
       %th Title
       %th
+      %th
+      %th
+      %th
+      %th Write ID
+      %th Write Name
       %th
       %th
 
   %tbody
     - @articles.each do |article|
       %tr
+        %td= article.id
         %td= article.title
         %td= link_to 'Show', article
         %td= link_to 'Edit', edit_article_path(article)
         %td= button_to 'Destroy', article, method: :delete, form: { data: { turbo_confirm: 'Are you sure?' } }
-
-%br
-
-= link_to 'New Article', new_article_path
+        %td= link_to 'Edit writers', edit_article_writers_path(article)
+        %td
+          - article.writers.each do |writer|
+            %div= writer.id
+        %td
+          - article.writers.each do |writer|
+            %div= writer.name
+        %td
+          - article.writers.each do |writer|
+            %div= link_to 'Show', writer
+        %td
+          - article.writers.each do |writer|
+            %div= link_to 'Edit', edit_writer_path(writer)

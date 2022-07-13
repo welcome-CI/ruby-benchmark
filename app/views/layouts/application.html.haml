@@ -9,10 +9,20 @@
     = stylesheet_link_tag 'application', 'data-turbo-track': 'reload'
     = javascript_include_tag 'application', 'data-turbo-track': 'reload', defer: true
   %body
-    - flash.each do |_name, message|
-      %p= message
-    %header
-      = link_to 'Articles', articles_path
-      = link_to 'Writers', writers_path
-    %main
+    %header.border-bottom
+      .container
+        %nav.navbar.navbar-expand-md
+          .container-fluid
+            = link_to 'Top', root_path, class: 'navbar-brand h1 mb-0'
+            %button.navbar-toggler{ 'aria-controls': 'navbar-supported-content', 'aria-expanded': 'false',
+              'aria-label': 'Toggle navigation', 'data-bs-target': '#navbar-supported-content',
+              'data-bs-toggle': 'collapse', type: 'button' }
+              %span.navbar-toggler-icon
+            .collapse.navbar-collapse#navbar-supported-content
+              %ul.navbar-nav.me-auto.mb-2.mb-md-0
+                %li.nav-item= link_to 'Articles', articles_path, class: 'nav-link'
+                %li.nav-item= link_to 'Writers', writers_path, class: 'nav-link'
+    %main.container.py-3
+      - flash.each do |_name, message|
+        %p= message
       = yield

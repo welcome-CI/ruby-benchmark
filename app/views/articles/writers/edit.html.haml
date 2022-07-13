@@ -1,0 +1,25 @@
+= form_with url: article_writers_path, method: 'patch', model: @article do |f|
+  - if @article.errors.any?
+    #error-explanation
+      %h2 #{pluralize(@article.errors.count, 'error')} prohibited this article from being saved:
+      %ul
+        - @article.errors.full_messages.each do |message|
+          %li= message
+
+  .field{ 'data-controller': 'fields-for' }
+    %div{ 'data-fields-for-target': 'container' }
+      = f.fields_for :articles_writers do |cf|
+        %div
+          = cf.label :writer_id, 'Writer ID'
+          = cf.text_field :writer_id, readonly: cf.object.persisted?
+          - if cf.object.persisted?
+            = cf.label :_destroy
+            = cf.check_box :_destroy
+        - if cf.object.new_record?
+          %template{ 'data-fields-for-target': 'template' }
+            %div
+              = cf.label :writer_id, 'Writer ID'
+              = cf.text_field :writer_id
+    %button{ type: 'button', 'data-action': 'fields-for#add' } Add input field
+  .actions
+    = f.submit 'Save'
