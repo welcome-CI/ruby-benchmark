@@ -1,5 +1,8 @@
 name: Ruby on Rails CI
 
+on:
+  - push
+
 jobs:
   test:
     runs-on: ubuntu-20.04
