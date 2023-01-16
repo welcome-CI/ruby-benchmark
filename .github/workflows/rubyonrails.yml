@@ -23,11 +23,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install fonts-noto-cjk
-        run: |
-          sudo apt-get update
-          sudo apt-get install fonts-noto-cjk
-
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1
         with:
