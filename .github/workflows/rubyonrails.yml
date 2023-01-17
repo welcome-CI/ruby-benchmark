@@ -172,7 +172,6 @@ jobs:
           bundle exec rubocop --parallel
 
   rspec:
-    needs: bundle-install
     runs-on: ubuntu-20.04
     timeout-minutes: 10
     services:
@@ -188,35 +187,32 @@ jobs:
       RAILS_ENV: test
       DATABASE_URL: postgres://rails:password@localhost:5432/rails_test
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Restore gem cache
-        id: gem-cache-restore
-        uses: actions/cache/restore@v3
+      - name: Install Ruby and gems
+        uses: ruby/setup-ruby@v1
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gem-${{ hashFiles('Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gem-
+          bundler-cache: true
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
 
       - name: Build assets
         run: |
-          yarn add esbuild
           yarn build
           yarn build:css
       - name: Set up database schema
-        run: |
-          bundle install
-          bin/rails db:schema:load
+        run: bin/rails db:schema:load
 
       - name: Run RSpec
         run: bundle exec rspec
 
-      - name: Upload code coverage artifact
+      - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
           name: code-coverage-report
           path: coverage
-        if: always()
