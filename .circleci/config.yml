@@ -72,7 +72,7 @@ jobs:
 
   bundle-install:
     docker:
-      - image: sunci/ruby-chrome:3.1.2
+      - image: sunci/ruby-chrome:3.1.2-node
 
     steps:
       - attach_workspace:
@@ -105,7 +105,7 @@ jobs:
 
   halm-lint:
     docker:
-      - image: sunci/ruby-chrome:3.1.2
+      - image: sunci/ruby-chrome:3.1.2-node
 
     steps:
       - attach_workspace:
@@ -121,7 +121,7 @@ jobs:
 
   rubocop:
     docker:
-      - image: sunci/ruby-chrome:3.1.2
+      - image: sunci/ruby-chrome:3.1.2-node
 
     steps:
       - attach_workspace:
@@ -137,7 +137,7 @@ jobs:
 
   rspec:
     docker:
-      - image: sunci/ruby-chrome:3.1.2
+      - image: sunci/ruby-chrome:3.1.2-node
         environment:
           PGHOST: 127.0.0.1
           PGUSER: root
@@ -148,7 +148,6 @@ jobs:
           POSTGRES_DB: rails_test
           POSTGRES_USER: rails
           POSTGRES_PASSWORD: password
-      - image: node:16-alpine
 
     steps:
       - attach_workspace:
@@ -157,17 +156,15 @@ jobs:
           docker_layer_caching: true
 
       - run:
-          name: Build assets
-          command: |
-            yarn build
-            yarn build:css
-
-      - run:
           name: Prepare
           command: |
             bundle install
             bundle exec rails db:create db:schema:load --trace
-
+      - run:
+          name: Build assets
+          command: |
+            yarn build
+            yarn build:css
       - run:
           name: Rspec
           command: bundle exec rspec
