@@ -108,4 +108,7 @@ workflows:
       - yarn-install:
           requires:
             - checkout
-      - rspec
+      - rspec:  
+          requires:
+            - yarn-install
+
