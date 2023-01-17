@@ -58,18 +58,6 @@ jobs:
 
       - run: yarn run eslint .
 
-  prettier:
-    docker:
-      - image: node:16-alpine
-
-    steps:
-      - attach_workspace:
-          at: .
-      - setup_remote_docker:
-          docker_layer_caching: true
-
-      - run: yarn run prettier --check .
-
   bundle-install:
     docker:
       - image: sunci/ruby-chrome:3.1.2-node
@@ -182,9 +170,6 @@ workflows:
           requires:
             - checkout
       - eslint:
-          requires:
-            - yarn-install
-      - prettier:
           requires:
             - yarn-install
       - halm-lint:
