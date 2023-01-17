@@ -187,10 +187,9 @@ jobs:
           POSTGRES_USER: rails
           POSTGRES_PASSWORD: password
     env:
+      PGHOST: 127.0.0.1
+      PGUSER: root
       RAILS_ENV: test
-      POSTGRES_DB: rails_test
-      POSTGRES_USER: rails
-      POSTGRES_PASSWORD: password
       DATABASE_URL: postgres://rails:password@localhost:5432/rails_test
     steps:
       - uses: actions/checkout@v3
