@@ -1,0 +1,89 @@
+default: 
+  workspace: shared
+
+stages:
+  - Install
+  - Test
+
+jobs:
+- name: Yarn Install
+  stage: Install
+  image: node:16-alpine
+  script:
+  - yarn install --frozen-lockfile
+  cache:
+    - key:
+        files:
+          - yarn.lock
+      paths:
+        - node_modules
+
+- name: Bundle Install
+  stage: Install
+  image: sunci/ruby-chrome:3.1.2-node
+  script:
+    - cp database-ci.yml config/database.yml
+    - gem install bundler -v 2.3.15
+    - bundle config set path vendor/bundle
+    - bundle install
+  cache:
+    - key:
+        files:
+          - Gemfile.lock
+      paths:
+      - vendor/bundle
+
+- name: ESLint
+  stage: Test
+  image: node:16-alpine
+  script:
+    - yarn run eslint .
+
+- name: Prettier
+  stage: Test
+  image: node:16-alpine
+  script:
+    - yarn run prettier --check .
+
+- name: HAML-Lint
+  stage: Test
+  image: sunci/ruby-chrome:3.1.2-node
+  script:
+    - bundle install
+    - bundle exec haml-lint --parallel
+
+- name: Rubocop
+  stage: Test
+  image: sunci/ruby-chrome:3.1.2-node
+  script:
+    - bundle install
+    - bundle exec rubocop --parallel
+
+- name: RSpec
+  stage: Test
+  image: sunci/ruby-chrome:3.1.2-node
+  environment:
+    - DATABASE_HOST=rails_test
+    - POSTGRES_USER=rails
+    - POSTGRES_PASSWORD=password
+    - RAILS_ENV=test
+  services:
+    - image: postgres:14-alpine
+      name: rails_test
+      ports:
+        - 5432:5432
+      environment:
+        - POSTGRES_DB=rails_test
+        - POSTGRES_USER=rails
+        - POSTGRES_PASSWORD=password
+  before_script:
+    - bundle install
+    - bundle exec rails db:create db:schema:load --trace
+    - yarn build
+    - yarn build:css
+  script: 
+    - bundle exec rspec
+  artifacts:
+    paths:
+      - coverage
+    expires_in: 3 days
