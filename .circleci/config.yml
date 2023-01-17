@@ -82,7 +82,7 @@ jobs:
           name: Prepare
           command: |
             cp database-ci.yml config/database.yml
-            ls -la config/database.yml
+            cat config/database.yml
             gem install bundler -v 2.3.15
             bundle config set path vendor/bundle
             bundle install
