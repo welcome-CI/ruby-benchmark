@@ -1,0 +1,201 @@
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@1.4.0
+
+jobs:
+  checkout:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+    steps:
+      - checkout
+
+      - persist_to_workspace:
+            root: .
+            paths:
+                - .
+
+  yarn-install:
+    docker:
+      - image: node:16-alpine
+        environment:
+          LARAVEL_BYPASS_ENV_CHECK: 1
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - restore_cache:
+          keys:
+            - cache-{{ checksum "yarn.lock" }}
+            - cache-
+
+      - run:
+          name: Yarn install
+          command: yarn install
+
+      - save_cache:
+          key: cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+
+      - persist_to_workspace:
+          root: .
+          paths:
+              - .
+
+  eslint:
+    docker:
+      - image: node:16-alpine
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run: yarn run eslint .
+
+  prettier:
+    docker:
+      - image: node:16-alpine
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run: yarn run prettier --check .
+
+  bundle-install:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - restore_cache:
+          keys:
+            - cache-{{ checksum "Gemfile.lock" }}
+            - cache-
+
+      - run:
+          name: Bundle Install
+          command: |
+            cp database-ci.yml config/database.yml
+            cat config/database.yml
+            gem install bundler -v 2.3.15
+            bundle config set path vendor/bundle
+
+      - save_cache:
+          key: cache-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - persist_to_workspace:
+          root: .
+          paths:
+              - .
+
+  halm-lint:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: HALM-lint
+          command: |
+            bundle install
+            bundle exec haml-lint --parallel
+
+  rubocop:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Rubocop
+          command: |
+            bundle install
+            bundle exec rubocop --parallel
+
+  rspec:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+        environment:
+          PGHOST: 127.0.0.1
+          PGUSER: root
+          RAILS_ENV: test
+          DATABASE_URL: postgres://rails:password@localhost:5432/rails_test
+      - image: postgres:14-alpine
+        environment:
+          POSTGRES_DB: rails_test
+          POSTGRES_USER: rails
+          POSTGRES_PASSWORD: password
+      - image: node:16-alpine
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build assets
+          command: |
+            yarn build
+            yarn build:css
+
+      - run:
+          name: Prepare
+          command: |
+            bundle install
+            bundle exec rails db:create db:schema:load --trace
+
+      - run:
+          name: Rspec
+          command: bundle exec rspec
+
+
+workflows:
+  ci-with-cache:
+    jobs:
+      - checkout
+      - yarn-install:
+          requires:
+            - checkout
+      - bundle-install:
+          requires:
+            - checkout
+      - eslint:
+          requires:
+            - yarn-install
+      - prettier:
+          requires:
+            - yarn-install
+      - halm-lint:
+          requires:
+            - bundle-install
+      - rubocop:
+          requires:
+            - bundle-install
+      - rspec:
+          requires:
+            - bundle-install
+
