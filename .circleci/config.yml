@@ -180,6 +180,9 @@ workflows:
       - yarn-install:
           requires:
             - checkout
+      - bundle-install:
+          requires:
+            - checkout
       - eslint:
           requires:
             - yarn-install
