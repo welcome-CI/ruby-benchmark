@@ -86,7 +86,7 @@ jobs:
             gem install bundler -v 2.3.15
             bundle config set path vendor/bundle
             bundle install
-            bundle exec rails db:schema:load
+            bin/rails db:schema:load
       - run:
           name: Rspec
           command: bundle exec rspec
