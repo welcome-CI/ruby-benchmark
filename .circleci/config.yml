@@ -47,17 +47,6 @@ jobs:
           root: .
           paths:
               - .
-  # build-assets:
-  #   docker:
-  #     - image: node:16-alpine
-  #   steps:
-  #     - attach_workspace:
-  #         at: .
-  #     - run:
-  #         name: Build assets
-  #         command: |
-  #           yarn build 
-  #           yarn build:css
 
   rspec:
     docker:
