@@ -163,6 +163,7 @@ jobs:
       - run:
           name: Build assets
           command: |
+            yarn add esbuild
             yarn build
             yarn build:css
       - run:
