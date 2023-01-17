@@ -207,7 +207,9 @@ jobs:
           yarn build
           yarn build:css
       - name: Set up database schema
-        run: bin/rails db:schema:load
+        run: |
+          bundle install
+          bin/rails db:schema:load
 
       - name: Run RSpec
         run: bundle exec rspec
