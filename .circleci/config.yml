@@ -161,16 +161,16 @@ jobs:
           command: |
             yarn build 
             yarn build:css
-
       - run:
           name: Prepare
           command: |
             bundle install
             bundle exec rails db:create db:schema:load --trace
-
       - run:
           name: Rspec
           command: bundle exec rspec
+      - store_artifacts:
+          path: coverage
             
 
 workflows:
