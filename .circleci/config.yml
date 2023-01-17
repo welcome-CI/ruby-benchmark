@@ -92,6 +92,7 @@ jobs:
           name: Rspec
           command: |
             google-chrome --version
+            bundle exec rails assets:precompile
             bundle exec rspec
 
 workflows:
