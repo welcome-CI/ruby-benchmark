@@ -172,6 +172,7 @@ jobs:
           bundle exec rubocop --parallel
 
   rspec:
+    needs: bundle-install
     runs-on: ubuntu-20.04
     timeout-minutes: 10
     services:
@@ -202,6 +203,7 @@ jobs:
 
       - name: Build assets
         run: |
+          yarn add esbuild
           yarn build
           yarn build:css
       - name: Set up database schema
