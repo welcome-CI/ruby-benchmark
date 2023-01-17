@@ -66,6 +66,7 @@ jobs:
           PGHOST: 127.0.0.1
           PGUSER: root
           RAILS_ENV: test
+          DATABASE_URL: postgres://rails:password@localhost:5432/rails_test
       - image: postgres:14-alpine
         environment:
           POSTGRES_DB: rails_test
@@ -86,7 +87,7 @@ jobs:
             gem install bundler -v 2.3.15
             bundle config set path vendor/bundle
             bundle install
-            bin/rails db:schema:load
+            bundle exec rails db:create db:schema:load --trace
       - run:
           name: Rspec
           command: bundle exec rspec
