@@ -29,9 +29,7 @@ jobs:
 
       - restore_cache:
           keys:
-            # "composer.lock" can be used if it is committed to the repo
             - cache-{{ checksum "yarn.lock" }}
-            # fallback to using the latest cache if no exact match is found
             - cache-
 
       - run:
@@ -47,6 +45,95 @@ jobs:
           root: .
           paths:
               - .
+
+  eslint:
+    docker:
+      - image: node:16-alpine
+    
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run: yarn run eslint .
+  
+  prettier:
+    docker:
+      - image: node:16-alpine
+    
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run: yarn run prettier --check .
+
+  bundle-install:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - restore_cache:
+          keys:
+            - cache-{{ checksum "Gemfile.lock" }}
+            - cache-
+
+      - run:
+          name: Bundle Install
+          command: | 
+            cp database-ci.yml config/database.yml
+            cat config/database.yml
+            gem install bundler -v 2.3.15
+            bundle config set path vendor/bundle
+
+      - save_cache:
+          key: cache-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - persist_to_workspace:
+          root: .
+          paths:
+              - .
+
+  halm-lint:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+    
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: HALM-lint
+          command: |
+            bundle install
+            bundle exec haml-lint --parallel
+
+  rubocop:
+    docker:
+      - image: sunci/ruby-chrome:3.1.2
+    
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Rubocop
+          command: |
+            bundle install
+            bundle exec rubocop --parallel
 
   rspec:
     docker:
@@ -78,10 +165,6 @@ jobs:
       - run:
           name: Prepare
           command: |
-            cp database-ci.yml config/database.yml
-            cat config/database.yml
-            gem install bundler -v 2.3.15
-            bundle config set path vendor/bundle
             bundle install
             bundle exec rails db:create db:schema:load --trace
 
@@ -97,7 +180,19 @@ workflows:
       - yarn-install:
           requires:
             - checkout
-      - rspec:  
+      - eslint:
           requires:
             - yarn-install
+      - prettier:
+          requires:
+            - yarn-install
+      - halm-lint:  
+          requires:
+            - bundle-install
+      - rubocop:  
+          requires:
+            - bundle-install
+      - rspec:  
+          requires:
+            - bundle-install
 
