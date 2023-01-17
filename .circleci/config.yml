@@ -1,0 +1,106 @@
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@1.4.0
+
+jobs:
+  checkout: 
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true      
+    steps:
+      - checkout 
+
+      - persist_to_workspace:
+            root: .
+            paths:
+                - .
+
+  yarn-install:
+    docker:
+      - image: node:16-alpine
+        environment:
+          LARAVEL_BYPASS_ENV_CHECK: 1
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - restore_cache:
+          keys:
+            # "composer.lock" can be used if it is committed to the repo
+            - cache-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - cache-
+
+      - run:
+          name: Yarn install
+          command: yarn install
+
+      - save_cache:
+          key: cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+
+      - persist_to_workspace:
+          root: .
+          paths:
+              - .
+  build-assets:
+    docker:
+      - image: node:16-alpine
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Build assets
+          command: |
+            yarn build 
+            yarn build:css
+
+  rspec:
+    docker:
+      - image: cimg/ruby:3.1.2-browsers
+        environment:
+          DATABASE_HOST: rails_test
+          POSTGRES_USER: rails
+          POSTGRES_PASSWORD: password
+          RAILS_ENV: test
+      - image: postgres:14-alpine
+        environment:
+          POSTGRES_DB: rails_test
+          POSTGRES_USER: rails
+          POSTGRES_PASSWORD: password
+
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Prepare
+          command: |
+            cp database-ci.yml config/database.yml
+            gem install bundler -v 2.3.15
+            bundle config set path vendor/bundle
+            bundle install
+            bundle exec rails db:schema:load
+      - run:
+          name: Rspec
+          command: bundle exec rspec
+
+workflows:
+  ci-with-cache: 
+    jobs:
+      - checkout
+      - yarn-install:
+          requires:
+            - checkout
+      - build-assets:
+          requires:
+            - yarn-install
+      - rspec:
+          requires:
+            - build-assets
