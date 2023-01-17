@@ -90,7 +90,9 @@ jobs:
             bundle exec rails db:create db:schema:load --trace
       - run:
           name: Rspec
-          command: bundle exec rspec
+          command: |
+            google-chrome --version
+            bundle exec rspec
 
 workflows:
   ci-with-cache: 
