@@ -205,6 +205,7 @@ jobs:
       - name: Set up database schema
         run: |
           bundle install
+          cp database-ci.yml config/database.yml
           bundle exec rails db:create db:schema:load --trace
 
       - name: Build assets
