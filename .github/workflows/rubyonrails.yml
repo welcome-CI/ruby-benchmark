@@ -188,6 +188,9 @@ jobs:
           POSTGRES_PASSWORD: password
     env:
       RAILS_ENV: test
+      POSTGRES_DB: rails_test
+      POSTGRES_USER: rails
+      POSTGRES_PASSWORD: password
       DATABASE_URL: postgres://rails:password@localhost:5432/rails_test
     steps:
       - uses: actions/checkout@v3
@@ -207,7 +210,7 @@ jobs:
         run: |
           bundle install
           cp database-ci.yml config/database.yml
-          bundle exec rails db:create db:schema:load --trace
+          bin/rails db:schema:load
 
       - name: Build assets
         run: |
