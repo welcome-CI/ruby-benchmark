@@ -185,7 +185,9 @@ jobs:
         run: bin/rails db:schema:load
 
       - name: Run RSpec
-        run: bundle exec rspec
+        run: |
+          google-chrome --version
+          bundle exec rspec
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
